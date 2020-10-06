@@ -1,0 +1,6 @@
+Add in statup times
+Test with analog switch
+
+
+Tune to PCB hardware
+More debug modes
