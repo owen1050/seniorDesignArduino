@@ -3,12 +3,21 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
+#include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
+#include <WiFiClient.h>
+
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 
 #define OLED_RESET     -1
 #define SCREEN_ADDRESS 0x3C
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+const char* ssid = "Test";
+const char* password = "test1234";
+
+String serverName = "http://148.76.16.24:1234";
 
 int analogSelect1Pin = D4;
 int analogSelect2Pin = D5;
@@ -38,11 +47,13 @@ int debugLevel = 2; //0 - none, 1 - minimal serial, 2- all serial, 3 - OLED
 int serialRate = 115200;
 
 String temp = "";
+String lastMessage = "";
 
 void setup() {
   Serial.begin(serialRate);
   setPinModes();
   setupOLED();
+  setupNetworkConnection();
 
 }
 
@@ -50,7 +61,59 @@ void loop() {
   updateInputs();
   updateOLED();
   debug();
+  makeRequest();
   delay(100);
+}
+
+void makeRequest() {
+  if(WiFi.status()== WL_CONNECTED){
+      HTTPClient http;
+
+      String serverPath = serverName;
+      
+      http.begin(serverPath.c_str());
+      int httpResponseCode = http.GET();
+      
+      if (httpResponseCode>0) {
+        Serial.print("\nHTTP Response code: ");
+        Serial.println(httpResponseCode);
+        String payload = http.getString();
+        lastMessage = payload;
+        Serial.println(payload);
+      }
+      else {
+        Serial.print("\nError code: ");
+        Serial.println(httpResponseCode);
+      }
+      
+      http.end();
+    }
+    else {
+      Serial.println("WiFi Disconnected");
+    }
+}
+
+void setupNetworkConnection() {
+  Serial.println();
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+
+  /* Explicitly set the ESP8266 to be a WiFi-client, otherwise, it by default,
+     would try to act as both a client and an access-point and could cause
+     network-issues with your other WiFi-devices on your WiFi-network. */
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
 }
 
 void updateOLED() {
@@ -78,6 +141,10 @@ void updateOLED() {
   displayText(0,40, "Switch");
   temp = String(switchInputValue);
   displayText(50, 40, temp);
+
+  displayText(0,48, "Message:");
+  temp = String(lastMessage);
+  displayText(54, 48, temp);
   
   display.display();
   
