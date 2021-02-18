@@ -1,4 +1,4 @@
-const int modulatedLookback = 300;
+const int modulatedLookback = 50;
 double topData[modulatedLookback];
 double botData[modulatedLookback];
 int inc = 0;
@@ -31,23 +31,22 @@ double shortTermNewMult = 1 / shortTermCount;
 
 int counter = 0;
 
-double topMult = 1.5;
+double topMult = 3;
 double topTriggerTime = 0;
 double topLastTime = 500;
 
-double botMult = 1.5;
+double botMult = 3;
 double botTriggerTime = 0;
 double botLastTime = 500;
 
-int analogSelectPin = D3;
-int analogSelectPin2 = D2;
-int analogSelectPin3 = D8;
-int topLEDPin = D1;
-int botLEDPin = D5;
-int relayPin = D6;
+int analogSelectPin = D2;
+
+int topLEDPin = D7;
+int botLEDPin = D6;
+int relayPin = D5;
 int analogInPin = A0;
 
-int debugMode = 1;
+int debugMode = 3;
 
 void setup() {
   Serial.begin(115200);
@@ -55,8 +54,7 @@ void setup() {
   analogWriteRange(1023);
 
   pinMode(analogSelectPin, OUTPUT);
-  pinMode(analogSelectPin2, OUTPUT);
-  pinMode(analogSelectPin3, OUTPUT);
+
   pinMode(topLEDPin, OUTPUT);
   pinMode(botLEDPin, OUTPUT);
   pinMode(relayPin, OUTPUT);
@@ -68,13 +66,61 @@ void setup() {
   digitalWrite(relayPin, LOW);
 
   digitalWrite(analogSelectPin, LOW);
-  digitalWrite(analogSelectPin2, LOW);
-  digitalWrite(analogSelectPin3, LOW);
+
 }
 
-void loop() {
+void loop()
+{
+  readAnalogPin();
+  updateMinMax();
+  updateAvgs();
+  checkTriggers();
+  debug();
+}
+
+void updateAvgs()
+{
+  topAmp = topMax - topMin;
+  botAmp = botMax - botMin;
+
+  topLT = topLT * longTermAvgMult + topAmp * longTermNewMult;
+  topST = topST * shortTermAvgMult + topAmp * shortTermNewMult;
+
+  botLT = botLT * longTermAvgMult + botAmp * longTermNewMult;
+  botST = botST * shortTermAvgMult + botAmp * shortTermNewMult;
+}
+
+void checkTriggers()
+{
+  if (topLT * topMult < topST)
+  {
+    topTriggerTime = millis();
+  }
+  if (botLT * botMult < botST)
+  {
+    botTriggerTime = millis();
+  }
+
+  if (millis() - topTriggerTime < topLastTime)
+  {
+    if (millis() - botTriggerTime < botLastTime)
+    {
+      if (topTriggerTime < botTriggerTime)
+      {
+        digitalWrite(relayPin, LOW);
+      }
+      else
+      {
+        digitalWrite(relayPin, HIGH);
+      }
+    }
+  }
+}
+
+void readAnalogPin()
+{
   inc++;
-  if(inc == modulatedLookback)
+  if (inc == modulatedLookback)
   {
     inc = 0;
   }
@@ -86,54 +132,41 @@ void loop() {
   setAnalogSwitch(botLEDPin);
   botCurr = analogRead(A0);
   botData[inc] = botCurr;
+}
 
-  updateMinMax();
-
-  topAmp = topMax - topMin;
-  botAmp = botMax - botMin;
-
-  topLT = topLT * longTermAvgMult + topAmp * longTermNewMult;
-  topST = topST * shortTermAvgMult + topAmp * shortTermNewMult;
-
-  botLT = botLT * longTermAvgMult + botAmp * longTermNewMult;
-  botST = botST * shortTermAvgMult + botAmp * shortTermNewMult;
-
-  if(topLT * topMult < topST)
+void debug()
+{
+  if (debugMode == 1)
   {
-    topTriggerTime = millis();
-  }
-  if(botLT * botMult < botST)
-  {
-    botTriggerTime = millis();
-  }
-
-  if(millis() - topTriggerTime < topLastTime)
-  {
-    if(millis() - botTriggerTime < botLastTime)
+    if (millis() - topTriggerTime < topLastTime)
     {
-      if(topTriggerTime < botTriggerTime)
+      if (millis() - botTriggerTime < botLastTime)
       {
-        digitalWrite(relayPin, LOW);
-      }
-      else
-      {
-        digitalWrite(relayPin, HIGH);
+        if (topTriggerTime < botTriggerTime)
+        {
+          Serial.println("ON");
+        }
+        else
+        {
+          Serial.println("OFF");
+        }
       }
     }
   }
-
-  if(debugMode > 0)
+  
+  if (debugMode == 2)
   {
-    if(millis() - topTriggerTime < topLastTime)
+    if (millis() - topTriggerTime < topLastTime)
     {
       Serial.println("TOP");
     }
-    if(millis() - botTriggerTime < botLastTime)
+    if (millis() - botTriggerTime < botLastTime)
     {
       Serial.println("BOT");
     }
   }
-  if(debugMode > 1)
+  
+  if (debugMode == 3)
   {
     Serial.print(topST);
     Serial.print("\t");
@@ -147,11 +180,11 @@ void loop() {
 
 void setAnalogSwitch(int pin)
 {
-  if(pin == topLEDPin)
+  if (pin == topLEDPin)
   {
     digitalWrite(analogSelectPin, LOW);
   }
-  if(pin == botLEDPin)
+  if (pin == botLEDPin)
   {
     digitalWrite(analogSelectPin, HIGH);
   }
@@ -164,23 +197,23 @@ void updateMinMax()
 
   botMax = 0;
   botMin = 2000;
-  
-  for(int i = 0; i < modulatedLookback; i++)
+
+  for (int i = 0; i < modulatedLookback; i++)
   {
-    if(topData[i] > topMax)
+    if (topData[i] > topMax)
     {
       topMax = topData[i];
     }
-    if(topData[i] < topMin)
+    if (topData[i] < topMin)
     {
       topMin = topData[i];
     }
-    
-    if(botData[i] > botMax)
+
+    if (botData[i] > botMax)
     {
       botMax = botData[i];
     }
-    if(botData[i] < botMin)
+    if (botData[i] < botMin)
     {
       botMin = botData[i];
     }
