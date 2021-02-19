@@ -6,20 +6,28 @@ void setup() {
   setupOLED();
   setupNetworkConnection();
 
+  setFakeData();//this is temp for testing
+  
 }
 
 void loop() {
   updateInputs();
-  updateOLED();
 
   updateJoystickState();
   checkJoystickMovement();
+
+  updateOLED();
   
   debug();
   //makeRequest();
   delay(10);
 }
 
+void setFakeData() {
+  deviceNames[0] = "Device0";
+  deviceNames[0] = "Device";
+  deviceNames[0] = "Device1";
+}
 void checkJoystickMovement() {
   if(xPrevState == 0 and xState == 1)
   {
@@ -38,6 +46,7 @@ void checkJoystickMovement() {
     Serial.println("DOWN");
   }
 }
+
 void updateJoystickState() {
   xPrevState = xState;
   if(xPrevState == -1)
