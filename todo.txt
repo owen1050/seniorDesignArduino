@@ -1,6 +1,15 @@
-Add in statup times
-Test with analog switch
+Switch:
+	starup times to get average
+	test with PCB
+	Request protocoal
+	delay after each request to get new average
+	pull out vars into another file
 
+Remote:
+	Joystick input, 
+	gui, 
+	average long term battery AND SET PICTURE
+	tune battery on pcb
 
-Tune to PCB hardware
-More debug modes
+Server side:
+	server and protocoal
