@@ -35,11 +35,15 @@ int joystickXValue = 0;
 int joystickYValue = 0;
 int batteryAnalogValue = 0;
 
+int xState = 0;
+int xPrevState = 0;
 int xMid = 691;
 int xDead = 200;
 int xMin = 50;
 int xMax = 1000;
 
+int yState = 0;
+int yPrevState = 0;
 int yMid = 721;
 int yDead = 200;
 int yMin = 50;

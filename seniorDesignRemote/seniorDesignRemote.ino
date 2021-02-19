@@ -11,9 +11,111 @@ void setup() {
 void loop() {
   updateInputs();
   updateOLED();
+
+  updateJoystickState();
+  checkJoystickMovement();
+  
   debug();
-  makeRequest();
-  delay(1000);
+  //makeRequest();
+  delay(10);
+}
+
+void checkJoystickMovement() {
+  if(xPrevState == 0 and xState == 1)
+  {
+    Serial.println("RIGHT");
+  }
+  if(xPrevState == 0 and xState == -1)
+  {
+    Serial.println("LEFT");
+  }
+  if(yPrevState == 0 and yState == 1)
+  {
+    Serial.println("UP");
+  }
+  if(yPrevState == 0 and yState == -1)
+  {
+    Serial.println("DOWN");
+  }
+}
+void updateJoystickState() {
+  xPrevState = xState;
+  if(xPrevState == -1)
+  {
+    if(joystickXValue > (xMid - xDead))
+    {
+      xState = 0;
+    }
+    else
+    {
+      xState = -1;
+    }
+  }
+  else if(xPrevState == 1)
+  {
+    if(joystickXValue < (xMid + xDead))
+    {
+      xState = 0;
+    }
+    else
+    {
+      xState = 1;
+    }
+  }
+  else
+  {
+    if(joystickXValue > xMax)
+    {
+      xState = 1;
+    }
+    else if(joystickXValue < xMin)
+    {
+      xState = -1;
+    }
+    else
+    {
+      xState = 0;
+    }
+  }
+  
+  yPrevState = yState;
+  if(yPrevState == -1)
+  {
+    if(joystickYValue > (yMid - yDead))
+    {
+      yState = 0;
+    }
+    else
+    {
+      yState = -1;
+    }
+  }
+  else if(yPrevState == 1)
+  {
+    if(joystickYValue < (yMid + yDead))
+    {
+      yState = 0;
+    }
+    else
+    {
+      yState = 1;
+    }
+  }
+  else
+  {
+    if(joystickYValue > yMax)
+    {
+      yState = 1;
+    }
+    else if(joystickYValue < yMin)
+    {
+      yState = -1;
+    }
+    else
+    {
+      yState = 0;
+    }
+  }
 }
 
 void makeRequest() {
@@ -77,7 +179,7 @@ void updateOLED() {
 
   display.drawBitmap(0, 0, wifi_bmp, 23, 15, SSD1306_WHITE);
   display.drawBitmap(53, 0, home_bmp, 16, 15, SSD1306_WHITE);
-  display.drawBitmap(95, 0, low_bmp, 30, 15, SSD1306_WHITE);
+  display.drawBitmap(95, 0, half_bmp, 30, 15, SSD1306_WHITE);
 
   displayText(0, 16, "Battery");
   temp = String(batteryAnalogValue);
@@ -113,9 +215,11 @@ void debug() {
     Serial.println("");
     Serial.print("DB1");
     Serial.print("\tBattery:"); Serial.print(batteryAnalogValue);
-    Serial.print(" \tJSX:"); Serial.print(joystickXValue);
-    Serial.print(" \tJSY:"); Serial.print(joystickYValue);
-    Serial.print(" \tSwitch:"); Serial.print(switchInputValue);
+    Serial.print("  \tJSX:"); Serial.print(joystickXValue);
+    Serial.print("   \tJSY:"); Serial.print(joystickYValue);
+    Serial.print("   \tSwitch:"); Serial.print(switchInputValue);
+    Serial.print(" \txState:"); Serial.print(xState);
+    Serial.print(" \tyState:"); Serial.print(yState);
   }
 }
 
