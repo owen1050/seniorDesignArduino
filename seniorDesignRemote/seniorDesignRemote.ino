@@ -7,7 +7,7 @@ void setup() {
   setupNetworkConnection();
 
   setFakeData();//this is temp for testing
-  
+
 }
 
 void loop() {
@@ -17,7 +17,7 @@ void loop() {
   checkJoystickMovement();
 
   updateOLED();
-  
+
   debug();
   //makeRequest();
   delay(10);
@@ -34,25 +34,25 @@ void setFakeData() {
 }
 
 void checkJoystickMovement() {
-  if(xPrevState == 0 and xState == 1)
+  if (xPrevState == 0 and xState == 1)
   {
     deviceStates[selectedDevice] = !deviceStates[selectedDevice];
     Serial.println("RIGHT");
   }
-  if(xPrevState == 0 and xState == -1)
+  if (xPrevState == 0 and xState == -1)
   {
     deviceStates[selectedDevice] = !deviceStates[selectedDevice];
     Serial.println("LEFT");
   }
-  if(yPrevState == 0 and yState == 1)
+  if (yPrevState == 0 and yState == 1)
   {
-    if(selectedDevice > 0)
+    if (selectedDevice > 0)
       selectedDevice--;
     Serial.println("UP");
   }
-  if(yPrevState == 0 and yState == -1)
+  if (yPrevState == 0 and yState == -1)
   {
-    if(selectedDevice < numDevices-1)
+    if (selectedDevice < numDevices - 1)
       selectedDevice++;
     Serial.println("DOWN");
   }
@@ -60,9 +60,9 @@ void checkJoystickMovement() {
 
 void updateJoystickState() {
   xPrevState = xState;
-  if(xPrevState == -1)
+  if (xPrevState == -1)
   {
-    if(joystickXValue > (xMid - xDead))
+    if (joystickXValue > (xMid - xDead))
     {
       xState = 0;
     }
@@ -71,9 +71,9 @@ void updateJoystickState() {
       xState = -1;
     }
   }
-  else if(xPrevState == 1)
+  else if (xPrevState == 1)
   {
-    if(joystickXValue < (xMid + xDead))
+    if (joystickXValue < (xMid + xDead))
     {
       xState = 0;
     }
@@ -84,11 +84,11 @@ void updateJoystickState() {
   }
   else
   {
-    if(joystickXValue > xMax)
+    if (joystickXValue > xMax)
     {
       xState = 1;
     }
-    else if(joystickXValue < xMin)
+    else if (joystickXValue < xMin)
     {
       xState = -1;
     }
@@ -97,11 +97,11 @@ void updateJoystickState() {
       xState = 0;
     }
   }
-  
+
   yPrevState = yState;
-  if(yPrevState == -1)
+  if (yPrevState == -1)
   {
-    if(joystickYValue > (yMid - yDead))
+    if (joystickYValue > (yMid - yDead))
     {
       yState = 0;
     }
@@ -110,9 +110,9 @@ void updateJoystickState() {
       yState = -1;
     }
   }
-  else if(yPrevState == 1)
+  else if (yPrevState == 1)
   {
-    if(joystickYValue < (yMid + yDead))
+    if (joystickYValue < (yMid + yDead))
     {
       yState = 0;
     }
@@ -123,11 +123,11 @@ void updateJoystickState() {
   }
   else
   {
-    if(joystickYValue > yMax)
+    if (joystickYValue > yMax)
     {
       yState = 1;
     }
-    else if(joystickYValue < yMin)
+    else if (joystickYValue < yMin)
     {
       yState = -1;
     }
@@ -190,7 +190,6 @@ void setupNetworkConnection() {
 }
 
 void updateOLED() {
-
   display.clearDisplay();
 
   display.setTextSize(2);      // Normal 1:1 pixel scale
@@ -200,33 +199,33 @@ void updateOLED() {
   display.drawBitmap(0, 0, wifi_bmp, 23, 15, SSD1306_WHITE);
   display.drawBitmap(53, 0, home_bmp, 16, 15, SSD1306_WHITE);
   display.drawBitmap(95, 0, half_bmp, 30, 15, SSD1306_WHITE);//add battery level checker
-  
+
   int i = 3;
-  if(numDevices < 3)
+  if (numDevices < 3)
     i = numDevices;
-    
+
   selectorPosition = 1;
   deviceOffset = -1;
-  if(selectedDevice == 0)
+  if (selectedDevice == 0)
   {
     deviceOffset = 0;
     selectorPosition = 0;
   }
-  if(selectedDevice == numDevices -1)
+  if (selectedDevice == numDevices - 1)
   {
     deviceOffset = -2;
     selectorPosition = 2;
   }
 
-  for(; i > 0; i--)
+  for (; i > 0; i--)
   {
-    int devIndex = i+selectedDevice+deviceOffset;
+    int devIndex = i + selectedDevice + deviceOffset;
     String temp = deviceNames[devIndex];
     int lenOfStr = temp.length();
-    int textX = 0; //if we want mid of screen64-(lenOfStr/2)*widthOfLetter;
+    int textX = 22; //if we want mid of screen64-(lenOfStr/2)*widthOfLetter;
     int textY = 16 + i * heightOfLetter;
     displayText(textX, textY, temp);
-    if(deviceStates[devIndex] == 1)
+    if (deviceStates[devIndex] == 1)
     {
       displayText(2 * widthOfLetter, textY, "ON");
     }
@@ -234,7 +233,11 @@ void updateOLED() {
     {
       displayText(3 * widthOfLetter, textY, "OFF");
     }
-    
+    if(devIndex == selectedDevice)
+    {
+      display.drawBitmap(0, textY+1, arrow_bmp, 20, 15, SSD1306_WHITE);
+    }
+
   }
   display.display();
 

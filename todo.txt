@@ -6,7 +6,6 @@ Switch:
 	pull out vars into another file
 
 Remote:
-	show which device is selected, maybe an arrow?
 	average long term battery AND SET PICTURE
 	tune battery on pcb
 
