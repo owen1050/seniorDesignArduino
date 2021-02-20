@@ -58,9 +58,13 @@ String lastMessage = "";
 
 int selectedDevice = 0;
 int selectorPosition = 0;
-int maxDevices = 10;
+int const maxDevices = 10;
 char *deviceNames[maxDevices];
+int deviceStates[maxDevices];
 int numDevices = 0;
+int widthOfLetter = 12;
+int heightOfLetter = 18;
+int deviceOffset = 0;
 
 static const unsigned char PROGMEM wifi_bmp[] =
 { 0x00, 0x78, 0x00, 0x07, 0xff, 0x80, 0x1f, 0xff, 0xe0, 0x3f, 0x03, 0xf8, 0x7c, 0x00, 0x7c, 0x70,

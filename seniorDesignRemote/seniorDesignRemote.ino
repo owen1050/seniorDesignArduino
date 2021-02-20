@@ -25,24 +25,35 @@ void loop() {
 
 void setFakeData() {
   deviceNames[0] = "Device0";
-  deviceNames[0] = "Device";
-  deviceNames[0] = "Device1";
+  deviceStates[0] = 0;
+  deviceNames[1] = "Device1";
+  deviceStates[1] = 0;
+  deviceNames[2] = "Device2";
+  deviceStates[2] = 1;
+  numDevices = 3;
 }
+
 void checkJoystickMovement() {
   if(xPrevState == 0 and xState == 1)
   {
+    deviceStates[selectedDevice] = !deviceStates[selectedDevice];
     Serial.println("RIGHT");
   }
   if(xPrevState == 0 and xState == -1)
   {
+    deviceStates[selectedDevice] = !deviceStates[selectedDevice];
     Serial.println("LEFT");
   }
   if(yPrevState == 0 and yState == 1)
   {
+    if(selectedDevice > 0)
+      selectedDevice--;
     Serial.println("UP");
   }
   if(yPrevState == 0 and yState == -1)
   {
+    if(selectedDevice < numDevices-1)
+      selectedDevice++;
     Serial.println("DOWN");
   }
 }
@@ -182,34 +193,49 @@ void updateOLED() {
 
   display.clearDisplay();
 
-  display.setTextSize(1);      // Normal 1:1 pixel scale
+  display.setTextSize(2);      // Normal 1:1 pixel scale
   display.setTextColor(SSD1306_WHITE); // Draw white text
   display.cp437(true);
 
   display.drawBitmap(0, 0, wifi_bmp, 23, 15, SSD1306_WHITE);
   display.drawBitmap(53, 0, home_bmp, 16, 15, SSD1306_WHITE);
-  display.drawBitmap(95, 0, half_bmp, 30, 15, SSD1306_WHITE);
+  display.drawBitmap(95, 0, half_bmp, 30, 15, SSD1306_WHITE);//add battery level checker
+  
+  int i = 3;
+  if(numDevices < 3)
+    i = numDevices;
+    
+  selectorPosition = 1;
+  deviceOffset = -1;
+  if(selectedDevice == 0)
+  {
+    deviceOffset = 0;
+    selectorPosition = 0;
+  }
+  if(selectedDevice == numDevices -1)
+  {
+    deviceOffset = -2;
+    selectorPosition = 2;
+  }
 
-  displayText(0, 16, "Battery");
-  temp = String(batteryAnalogValue);
-  displayText(50, 16, temp);
-
-  displayText(0, 24, "JSX");
-  temp = String(joystickXValue);
-  displayText(50, 24, temp);
-
-  displayText(0, 32, "JSY");
-  temp = String(joystickYValue);
-  displayText(50, 32, temp);
-
-  displayText(0, 40, "Switch");
-  temp = String(switchInputValue);
-  displayText(50, 40, temp);
-
-  displayText(0, 48, "Message:");
-  temp = String(lastMessage);
-  displayText(54, 48, temp);
-
+  for(; i > 0; i--)
+  {
+    int devIndex = i+selectedDevice+deviceOffset;
+    String temp = deviceNames[devIndex];
+    int lenOfStr = temp.length();
+    int textX = 0; //if we want mid of screen64-(lenOfStr/2)*widthOfLetter;
+    int textY = 16 + i * heightOfLetter;
+    displayText(textX, textY, temp);
+    if(deviceStates[devIndex] == 1)
+    {
+      displayText(2 * widthOfLetter, textY, "ON");
+    }
+    else
+    {
+      displayText(3 * widthOfLetter, textY, "OFF");
+    }
+    
+  }
   display.display();
 
 }
