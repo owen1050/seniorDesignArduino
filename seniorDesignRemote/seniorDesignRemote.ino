@@ -5,6 +5,7 @@ void setup() {
   setPinModes();
   setupOLED();
   setupNetworkConnection();
+  setupLookbacks();
 
   setFakeData();//this is temp for testing
 
@@ -21,6 +22,19 @@ void loop() {
   debug();
   //makeRequest();
   delay(10);
+}
+
+void setupLookbacks()
+{
+  for(int i = joystickLookback-1; i > 0; i--)
+  {
+    joystickXValues[i] = 0;
+    joystickYValues[i] = 0;
+  }
+  for(int i = batteryLookback-1; i > 0; i--)
+  {
+    batteryValues[i] = 0;
+  }
 }
 
 void setFakeData() {
@@ -285,6 +299,13 @@ void updateInputs() {
   updateJoystickY();
   updateBattery();
   updateSwitch();
+  joystickLookbackPos++;
+  if(joystickLookbackPos > joystickLookback -1)
+    joystickLookbackPos = 0;
+  batteryLookbackPos++;
+  if(batteryLookbackPos > batteryLookback -1)
+    batteryLookbackPos = 0;
+    
 }
 
 void updateSwitch() {
@@ -294,16 +315,34 @@ void updateSwitch() {
 void updateJoystickX() {
   setAnalogSwitch(0, 0, 1); //update this when PCB is made
   joystickXValue = analogRead(analogInputPin);
+  joystickXValues[joystickLookbackPos] = joystickXValue;
+  joystickXValue = averageArray(joystickXValues);
+  
 }
 
 void updateJoystickY() {
   setAnalogSwitch(0, 1, 0); //update this when PCB is made
   joystickYValue = analogRead(analogInputPin);
+  joystickYValues[joystickLookbackPos] = joystickYValue;
+  joystickYValue = averageArray(joystickYValues);
 }
 
 void updateBattery() {
   setAnalogSwitch(0, 0, 0); //update this when PCB is made
   batteryAnalogValue = analogRead(analogInputPin);
+  batteryValues[batteryLookbackPos] = batteryAnalogValue;
+  batteryAnalogValue = averageArray(batteryValues);
+}
+
+int averageArray(int arr[])
+{
+  int tot = 0;
+  int len = sizeof(arr)-1;
+  for(int i = len; i > 0; i--)
+  {
+    tot += arr[i];
+  }
+  return tot/len;
 }
 
 void setAnalogSwitch(int S1, int S2, int S3) {

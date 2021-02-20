@@ -34,6 +34,13 @@ int switchInputValue = 0;
 int joystickXValue = 0;
 int joystickYValue = 0;
 int batteryAnalogValue = 0;
+int const batteryLookback = 20;
+int const joystickLookback = 20;
+int joystickLookbackPos = 0;
+int batteryLookbackPos = 0;
+int joystickXValues[joystickLookback];
+int joystickYValues[joystickLookback];
+int batteryValues[batteryLookback];
 
 int xState = 0;
 int xPrevState = 0;
