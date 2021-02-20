@@ -42,6 +42,9 @@ int joystickXValues[joystickLookback];
 int joystickYValues[joystickLookback];
 int batteryValues[batteryLookback];
 
+int batteryMidLevel = 300;
+int batteryLowLevel = 230;
+
 int xState = 0;
 int xPrevState = 0;
 int xMid = 691;

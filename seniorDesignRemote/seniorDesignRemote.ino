@@ -212,7 +212,19 @@ void updateOLED() {
 
   display.drawBitmap(0, 0, wifi_bmp, 23, 15, SSD1306_WHITE);
   display.drawBitmap(53, 0, home_bmp, 16, 15, SSD1306_WHITE);
-  display.drawBitmap(95, 0, half_bmp, 30, 15, SSD1306_WHITE);//add battery level checker
+  if(batteryAnalogValue > batteryMidLevel)
+  {
+    display.drawBitmap(95, 0, full_bmp, 30, 15, SSD1306_WHITE);//add battery level checker
+  }
+  else if(batteryAnalogValue > batteryLowLevel)
+  {
+    display.drawBitmap(95, 0, half_bmp, 30, 15, SSD1306_WHITE);//add battery level checker
+  }
+  else
+  {
+    display.drawBitmap(95, 0, low_bmp, 30, 15, SSD1306_WHITE);//add battery level checker
+  }
+  
 
   int i = 3;
   if (numDevices < 3)
