@@ -1,3 +1,7 @@
+Both:
+	pull out meathoads into header files
+	TESTING
+
 Remote:
 	Figure out long turn on time
 	tune battery on pcb
@@ -5,9 +9,4 @@ Remote:
 Switch:
 	starup times to get average
 	test with PCB
-	setup requts to interface with server
 	delay after each request to get new average
-	pull out vars into another file
-
-
-Website for pics: http://javl.github.io/image2cpp/

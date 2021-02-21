@@ -18,6 +18,10 @@ void setup() {
   digitalWrite(relayPin, LOW);
 
   digitalWrite(analogSelectPin, LOW);
+  
+  setupNetworkConnection();
+  checkServer();
+  lastServerCheck = millis();
 
 }
 
@@ -28,6 +32,43 @@ void loop()
   updateAvgs();
   checkTriggers();
   debug();
+}
+
+void checkServer()
+{
+  makeGetRequest("!" + deviceName + "/" + deviceName);
+  int valFromServer = lastMessage.substring(1,2).toInt();
+  if (valFromServer)
+  {
+    digitalWrite(relayPin, HIGH);
+  }
+  else
+  {
+    digitalWrite(relayPin, LOW);
+  }
+}
+
+void setupNetworkConnection() {
+  Serial.println();
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+
+  /* Explicitly set the ESP8266 to be a WiFi-client, otherwise, it by default,
+     would try to act as both a client and an access-point and could cause
+     network-issues with your other WiFi-devices on your WiFi-network. */
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
 }
 
 void updateAvgs()
@@ -60,10 +101,12 @@ void checkTriggers()
       if (topTriggerTime < botTriggerTime)
       {
         digitalWrite(relayPin, LOW);
+        makePostRequest("set/" + deviceName + "/0");
       }
       else
       {
         digitalWrite(relayPin, HIGH);
+        makePostRequest("set/" + deviceName + "/1");
       }
     }
   }
@@ -169,5 +212,63 @@ void updateMinMax()
     {
       botMin = botData[i];
     }
+  }
+}
+
+void makePostRequest(String path) {
+  if (WiFi.status() == WL_CONNECTED) {
+    HTTPClient http;
+    String serverPath = serverName + path;
+
+    http.begin(serverPath);
+    int httpResponseCode = http.POST("");
+
+    if (httpResponseCode > 0) {
+      Serial.print("\nHTTP Response code: ");
+      Serial.println(httpResponseCode);
+      String payload = http.getString();
+      lastMessage = payload;
+      Serial.println(payload);
+    }
+    else {
+      Serial.print("\nError code: ");
+      Serial.println(httpResponseCode);
+      String payload = http.getString();
+      Serial.println(payload);
+    }
+
+    http.end();
+  }
+  else {
+    Serial.println("WiFi Disconnected");
+  }
+}
+
+void makeGetRequest(String path) {
+  if (WiFi.status() == WL_CONNECTED) {
+    HTTPClient http;
+    String serverPath = serverName + path;
+
+    http.begin(serverPath);
+    int httpResponseCode = http.GET();
+
+    if (httpResponseCode > 0) {
+      Serial.print("\nHTTP Response code: ");
+      Serial.println(httpResponseCode);
+      String payload = http.getString();
+      lastMessage = payload;
+      Serial.println(payload);
+    }
+    else {
+      Serial.print("\nError code: ");
+      Serial.println(httpResponseCode);
+      String payload = http.getString();
+      Serial.println(payload);
+    }
+
+    http.end();
+  }
+  else {
+    Serial.println("WiFi Disconnected");
   }
 }

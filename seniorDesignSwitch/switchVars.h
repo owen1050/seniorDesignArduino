@@ -1,6 +1,20 @@
 #ifndef SIWTCHVARS_H
 #define SWITCHVARS_H
 
+#include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
+#include <WiFiClient.h>
+
+const char* ssid = "Test";
+const char* password = "test1234";
+
+String serverName = "http://148.76.16.24:1234/";
+String deviceName = "realSwitch1";
+String lastMessage = "";
+
+long checkServerEveryMS = 1000;
+long lastServerCheck = 0;
+
 const int modulatedLookback = 50;
 double topData[modulatedLookback];
 double botData[modulatedLookback];
