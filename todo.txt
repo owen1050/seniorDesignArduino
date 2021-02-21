@@ -1,15 +1,11 @@
-Server side:
-	server and protocoal
-
 Remote:
-	test on hardware
 	make requests to interface with server and update local vars
 	tune battery on pcb
 
 Switch:
 	starup times to get average
 	test with PCB
-	Request protocoal
+	setup requts to interface with server
 	delay after each request to get new average
 	pull out vars into another file
 

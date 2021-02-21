@@ -1,3 +1,4 @@
+
 #include "remoteVars.h"
 
 void setup() {
@@ -6,7 +7,6 @@ void setup() {
   setupOLED();
   setupNetworkConnection();
   setupLookbacks();
-
   setFakeData();//this is temp for testing
 
 }
@@ -26,11 +26,6 @@ void loop() {
 
 void setupLookbacks()
 {
-  for(int i = joystickLookback-1; i > 0; i--)
-  {
-    joystickXValues[i] = 0;
-    joystickYValues[i] = 0;
-  }
   for(int i = batteryLookback-1; i > 0; i--)
   {
     batteryValues[i] = 0;
@@ -43,8 +38,10 @@ void setFakeData() {
   deviceNames[1] = "Device1";
   deviceStates[1] = 0;
   deviceNames[2] = "Device2";
-  deviceStates[2] = 1;
-  numDevices = 3;
+  deviceStates[2] = 0;
+  deviceNames[3] = "Device3";
+  deviceStates[3] = 0;
+  numDevices = 4;
 }
 
 void checkJoystickMovement() {
@@ -206,7 +203,7 @@ void setupNetworkConnection() {
 void updateOLED() {
   display.clearDisplay();
 
-  display.setTextSize(2);      // Normal 1:1 pixel scale
+  display.setTextSize(1);      // Normal 1:1 pixel scale
   display.setTextColor(SSD1306_WHITE); // Draw white text
   display.cp437(true);
 
@@ -245,7 +242,7 @@ void updateOLED() {
 
   for (; i > 0; i--)
   {
-    int devIndex = i + selectedDevice + deviceOffset;
+    int devIndex = i + selectedDevice + deviceOffset -1;
     String temp = deviceNames[devIndex];
     int lenOfStr = temp.length();
     int textX = 22; //if we want mid of screen64-(lenOfStr/2)*widthOfLetter;
@@ -253,15 +250,15 @@ void updateOLED() {
     displayText(textX, textY, temp);
     if (deviceStates[devIndex] == 1)
     {
-      displayText(2 * widthOfLetter, textY, "ON");
+      displayText(110, textY, "ON");
     }
     else
     {
-      displayText(3 * widthOfLetter, textY, "OFF");
+      displayText(110, textY, "OFF");
     }
     if(devIndex == selectedDevice)
     {
-      display.drawBitmap(0, textY+1, arrow_bmp, 20, 15, SSD1306_WHITE);
+      display.drawBitmap(0, textY-4, arrow_bmp, 20, 15, SSD1306_WHITE);
     }
 
   }
@@ -284,6 +281,8 @@ void debug() {
     Serial.print("   \tSwitch:"); Serial.print(switchInputValue);
     Serial.print(" \txState:"); Serial.print(xState);
     Serial.print(" \tyState:"); Serial.print(yState);
+    Serial.print(" \tSD:"); Serial.print(selectedDevice);
+    Serial.print(" \tSP:"); Serial.print(selectorPosition);
   }
 }
 
@@ -311,9 +310,7 @@ void updateInputs() {
   updateJoystickY();
   updateBattery();
   updateSwitch();
-  joystickLookbackPos++;
-  if(joystickLookbackPos > joystickLookback -1)
-    joystickLookbackPos = 0;
+  
   batteryLookbackPos++;
   if(batteryLookbackPos > batteryLookback -1)
     batteryLookbackPos = 0;
@@ -327,35 +324,25 @@ void updateSwitch() {
 void updateJoystickX() {
   setAnalogSwitch(0, 0, 1); //update this when PCB is made
   joystickXValue = analogRead(analogInputPin);
-  joystickXValues[joystickLookbackPos] = joystickXValue;
-  joystickXValue = averageArray(joystickXValues);
-  
 }
 
 void updateJoystickY() {
   setAnalogSwitch(0, 1, 0); //update this when PCB is made
   joystickYValue = analogRead(analogInputPin);
-  joystickYValues[joystickLookbackPos] = joystickYValue;
-  joystickYValue = averageArray(joystickYValues);
 }
 
 void updateBattery() {
   setAnalogSwitch(0, 0, 0); //update this when PCB is made
   batteryAnalogValue = analogRead(analogInputPin);
   batteryValues[batteryLookbackPos] = batteryAnalogValue;
-  batteryAnalogValue = averageArray(batteryValues);
+  int tot = 0;
+  for(int i = 0; i < batteryLookback; i++)
+  {
+    tot += batteryValues[i];
+  }
+  batteryAnalogValue = tot/batteryLookback;
 }
 
-int averageArray(int arr[])
-{
-  int tot = 0;
-  int len = sizeof(arr)-1;
-  for(int i = len; i > 0; i--)
-  {
-    tot += arr[i];
-  }
-  return tot/len;
-}
 
 void setAnalogSwitch(int S1, int S2, int S3) {
   digitalWrite(analogSelect1Pin, S1);

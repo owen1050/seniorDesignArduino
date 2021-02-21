@@ -34,12 +34,9 @@ int switchInputValue = 0;
 int joystickXValue = 0;
 int joystickYValue = 0;
 int batteryAnalogValue = 0;
+
 int const batteryLookback = 20;
-int const joystickLookback = 20;
-int joystickLookbackPos = 0;
 int batteryLookbackPos = 0;
-int joystickXValues[joystickLookback];
-int joystickYValues[joystickLookback];
 int batteryValues[batteryLookback];
 
 int batteryMidLevel = 300;
@@ -72,8 +69,8 @@ int const maxDevices = 10;
 char *deviceNames[maxDevices];
 int deviceStates[maxDevices];
 int numDevices = 0;
-int widthOfLetter = 12;
-int heightOfLetter = 18;
+int widthOfLetter = 8;
+int heightOfLetter = 12;
 int deviceOffset = 0;
 
 static const unsigned char PROGMEM wifi_bmp[] =
