@@ -7,8 +7,9 @@ void setup() {
   setupOLED();
   setupNetworkConnection();
   setupLookbacks();
-  setFakeData();//this is temp for testing
-
+  //setFakeData();//this is temp for testing
+  checkServer();
+  lastServerCheck = millis();
 }
 
 void loop() {
@@ -18,10 +19,39 @@ void loop() {
   checkJoystickMovement();
 
   updateOLED();
-
   debug();
-  //makeRequest();
+
+  if(millis() - lastServerCheck > checkServerEveryMS)
+  {
+    checkServer();
+    lastServerCheck = millis();
+  }
   delay(10);
+}
+
+void checkServer()
+{
+  makeRequest("all");
+  int cur = 1;
+  int i = 0;
+  int i0 = 0;
+  int i1 = 0;
+  while(lastMessage.indexOf(":", cur) > 0)
+  {
+    i0 = cur;
+    i1 = lastMessage.indexOf(":", i0);
+    deviceNames[i] = lastMessage.substring(i0, i1);
+    i0 = i1+1;
+    i1 = lastMessage.indexOf(",", i0);
+    if(i1 == -1)
+    {
+      i1 = lastMessage.indexOf("}", i0);
+    }
+    deviceStates[i] = lastMessage.substring(i0, i1).toInt();
+    cur = i1+1;
+    i++;
+  }
+  numDevices = i;
 }
 
 void setupLookbacks()
@@ -149,13 +179,13 @@ void updateJoystickState() {
   }
 }
 
-void makeRequest() {
+void makeRequest(String path) {
   if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
-
-    String serverPath = serverName;
+    String serverPath = serverName + path;
 
     http.begin(serverPath.c_str());
+    
     int httpResponseCode = http.GET();
 
     if (httpResponseCode > 0) {
@@ -168,6 +198,8 @@ void makeRequest() {
     else {
       Serial.print("\nError code: ");
       Serial.println(httpResponseCode);
+      String payload = http.getString();
+      Serial.println(payload);
     }
 
     http.end();
@@ -245,7 +277,7 @@ void updateOLED() {
     int devIndex = i + selectedDevice + deviceOffset -1;
     String temp = deviceNames[devIndex];
     int lenOfStr = temp.length();
-    int textX = 22; //if we want mid of screen64-(lenOfStr/2)*widthOfLetter;
+    int textX = 22;
     int textY = 16 + i * heightOfLetter;
     displayText(textX, textY, temp);
     if (deviceStates[devIndex] == 1)

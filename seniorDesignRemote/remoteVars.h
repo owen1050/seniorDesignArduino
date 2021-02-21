@@ -20,7 +20,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 const char* ssid = "Test";
 const char* password = "test1234";
 
-String serverName = "http://148.76.16.24:1234";
+String serverName = "http://148.76.16.24:1234/";
 
 int analogSelect1Pin = D4;
 int analogSelect2Pin = D5;
@@ -63,10 +63,14 @@ int serialRate = 115200;
 String temp = "";
 String lastMessage = "";
 
+long checkServerEveryMS = 1000;
+long lastServerCheck = 0;
+double httpTimeout = 1;
+
 int selectedDevice = 0;
 int selectorPosition = 0;
 int const maxDevices = 10;
-char *deviceNames[maxDevices];
+String deviceNames[maxDevices];
 int deviceStates[maxDevices];
 int numDevices = 0;
 int widthOfLetter = 8;
