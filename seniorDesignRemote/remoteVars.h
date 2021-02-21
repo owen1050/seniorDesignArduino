@@ -35,7 +35,7 @@ int joystickXValue = 0;
 int joystickYValue = 0;
 int batteryAnalogValue = 0;
 
-int const batteryLookback = 20;
+int const batteryLookback = 40;
 int batteryLookbackPos = 0;
 int batteryValues[batteryLookback];
 
@@ -56,7 +56,7 @@ int yDead = 200;
 int yMin = 50;
 int yMax = 1000;
 
-int debugLevel = 2; //0 - none, 1 - minimal serial, 2- all serial, 3 - OLED
+int debugLevel = 0; //0 - none, 1 - minimal serial, 2- all serial, 3 - OLED
 
 int serialRate = 115200;
 
@@ -65,7 +65,6 @@ String lastMessage = "";
 
 long checkServerEveryMS = 1000;
 long lastServerCheck = 0;
-double httpTimeout = 1;
 
 int selectedDevice = 0;
 int selectorPosition = 0;

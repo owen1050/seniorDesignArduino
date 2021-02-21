@@ -31,7 +31,7 @@ void loop() {
 
 void checkServer()
 {
-  makeRequest("all");
+  makeGetRequest("all");
   int cur = 1;
   int i = 0;
   int i0 = 0;
@@ -78,12 +78,16 @@ void checkJoystickMovement() {
   if (xPrevState == 0 and xState == 1)
   {
     deviceStates[selectedDevice] = !deviceStates[selectedDevice];
-    Serial.println("RIGHT");
+    String temp = "set/" +deviceNames[selectedDevice]+"/"+ String(deviceStates[selectedDevice]);
+    makePostRequest(temp);
+    Serial.println("RIGHT:"+temp);
   }
   if (xPrevState == 0 and xState == -1)
   {
     deviceStates[selectedDevice] = !deviceStates[selectedDevice];
-    Serial.println("LEFT");
+    String temp = "set/" +deviceNames[selectedDevice]+"/"+ String(deviceStates[selectedDevice]);
+    makePostRequest(temp);
+    Serial.println("LEFT:"+temp);
   }
   if (yPrevState == 0 and yState == 1)
   {
@@ -179,13 +183,41 @@ void updateJoystickState() {
   }
 }
 
-void makeRequest(String path) {
+void makePostRequest(String path) {
   if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
     String serverPath = serverName + path;
 
-    http.begin(serverPath.c_str());
-    
+    http.begin(serverPath);
+    int httpResponseCode = http.POST("");
+
+    if (httpResponseCode > 0) {
+      Serial.print("\nHTTP Response code: ");
+      Serial.println(httpResponseCode);
+      String payload = http.getString();
+      lastMessage = payload;
+      Serial.println(payload);
+    }
+    else {
+      Serial.print("\nError code: ");
+      Serial.println(httpResponseCode);
+      String payload = http.getString();
+      Serial.println(payload);
+    }
+
+    http.end();
+  }
+  else {
+    Serial.println("WiFi Disconnected");
+  }
+}
+
+void makeGetRequest(String path) {
+  if (WiFi.status() == WL_CONNECTED) {
+    HTTPClient http;
+    String serverPath = serverName + path;
+
+    http.begin(serverPath);
     int httpResponseCode = http.GET();
 
     if (httpResponseCode > 0) {

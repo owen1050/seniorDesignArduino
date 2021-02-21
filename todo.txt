@@ -1,5 +1,5 @@
 Remote:
-	make requests to interface with server and update local vars
+	Figure out long turn on time
 	tune battery on pcb
 
 Switch:
