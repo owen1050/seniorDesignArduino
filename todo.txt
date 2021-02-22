@@ -3,10 +3,9 @@ Both:
 	TESTING
 
 Remote:
+	udpate battery averaging so it doernt use arrays look at switch for inspiration
 	Figure out long turn on time
 	tune battery on pcb
 
 Switch:
-	starup times to get average
 	test with PCB
-	delay after each request to get new average

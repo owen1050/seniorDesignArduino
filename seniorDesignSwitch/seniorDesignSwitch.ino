@@ -18,26 +18,43 @@ void setup() {
   digitalWrite(relayPin, LOW);
 
   digitalWrite(analogSelectPin, LOW);
-  
-  setupNetworkConnection();
-  checkServer();
+
+  resetAvg();
+  //setupNetworkConnection();
+  //makePostRequest("new/" + deviceName);
+  //checkServer();
   lastServerCheck = millis();
+  
 
 }
 
 void loop()
 {
+  if (millis() - lastServerCheck > checkServerEveryMS)
+  {
+    //checkServer();
+    lastServerCheck = millis();
+  }
   readAnalogPin();
   updateMinMax();
   updateAvgs();
   checkTriggers();
+
   debug();
 }
 
+void resetAvg(){
+  for(int i = 0; i < longTermCount; i++)
+  {
+    //readAnalogPin();
+    updateMinMax();
+    updateAvgs();
+  }
+}
 void checkServer()
 {
   makeGetRequest("!" + deviceName + "/" + deviceName);
-  int valFromServer = lastMessage.substring(1,2).toInt();
+  int valFromServer = lastMessage.substring(1, 2).toInt();
   if (valFromServer)
   {
     digitalWrite(relayPin, HIGH);
@@ -101,12 +118,18 @@ void checkTriggers()
       if (topTriggerTime < botTriggerTime)
       {
         digitalWrite(relayPin, LOW);
-        makePostRequest("set/" + deviceName + "/0");
+        //makePostRequest("set/" + deviceName + "/0");
+        delay(100);
+        resetAvg();
+        delay(100);
       }
       else
       {
         digitalWrite(relayPin, HIGH);
-        makePostRequest("set/" + deviceName + "/1");
+        //makePostRequest("set/" + deviceName + "/1");
+        delay(100);
+        resetAvg();
+        delay(100);
       }
     }
   }
@@ -131,7 +154,7 @@ void readAnalogPin()
 
 void debug()
 {
-  if (debugMode == 1)
+  if (debugMode >= 1)
   {
     if (millis() - topTriggerTime < topLastTime)
     {
@@ -148,7 +171,7 @@ void debug()
       }
     }
   }
-  
+
   if (debugMode == 2)
   {
     if (millis() - topTriggerTime < topLastTime)
@@ -160,7 +183,7 @@ void debug()
       Serial.println("BOT");
     }
   }
-  
+
   if (debugMode == 3)
   {
     Serial.print(topST);
