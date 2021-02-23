@@ -8,7 +8,7 @@
 const char* ssid = "Test";
 const char* password = "test1234";
 
-String serverName = "http://148.76.16.24:1234/";
+String serverName = "https://suipe53w4l.execute-api.us-east-1.amazonaws.com/stageName/";
 String deviceName = "realSwitch1";
 String lastMessage = "";
 
