@@ -26,7 +26,6 @@ void loop() {
     checkServer();
     lastServerCheck = millis();
   }
-  delay(10);
 }
 
 void checkServer()
@@ -367,6 +366,10 @@ void setPinModes() {
   pinMode(switchInputPin, INPUT);
 
   pinMode(analogInputPin, INPUT);
+
+  digitalWrite(analogSelect1Pin, LOW);
+  digitalWrite(analogSelect2Pin, LOW);
+  digitalWrite(analogSelect3Pin, LOW);
 }
 
 void updateInputs() {

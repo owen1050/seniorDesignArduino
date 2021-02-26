@@ -20,7 +20,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 const char* ssid = "Test";
 const char* password = "test1234";
 
-String serverName = "https://suipe53w4l.execute-api.us-east-1.amazonaws.com/stageName/";
+String serverName = "http://148.76.16.24:1234/";
 
 int analogSelect1Pin = D4;
 int analogSelect2Pin = D5;
@@ -56,7 +56,7 @@ int yDead = 200;
 int yMin = 50;
 int yMax = 1000;
 
-int debugLevel = 0; //0 - none, 1 - minimal serial, 2- all serial, 3 - OLED
+int debugLevel = 2; //0 - none, 1 - minimal serial, 2- all serial, 3 - OLED
 
 int serialRate = 115200;
 

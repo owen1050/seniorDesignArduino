@@ -36,11 +36,11 @@ void loop()
     lastServerCheck = millis();
   }
   readAnalogPin();
-  updateMinMax();
-  updateAvgs();
-  checkTriggers();
+  //updateMinMax();
+  //updateAvgs();
+  //checkTriggers();
 
-  debug();
+  //debug();
 }
 
 void resetAvg(){
@@ -118,18 +118,18 @@ void checkTriggers()
       if (topTriggerTime < botTriggerTime)
       {
         digitalWrite(relayPin, LOW);
+        Serial.println("OFF");
         //makePostRequest("set/" + deviceName + "/0");
-        delay(100);
+        delay(400);
         resetAvg();
-        delay(100);
       }
       else
       {
         digitalWrite(relayPin, HIGH);
+        Serial.println("ON");
         //makePostRequest("set/" + deviceName + "/1");
-        delay(100);
+        delay(400);
         resetAvg();
-        delay(100);
       }
     }
   }
@@ -144,17 +144,22 @@ void readAnalogPin()
   }
 
   setAnalogSwitch(topLEDPin);
+  delay(10);
   topCurr = analogRead(A0);
+  Serial.print(topCurr);
+  Serial.print("\t");
   topData[inc] = topCurr;
 
   setAnalogSwitch(botLEDPin);
+  delay(10);
   botCurr = analogRead(A0);
+  Serial.println(botCurr);
   botData[inc] = botCurr;
 }
 
 void debug()
 {
-  if (debugMode >= 1)
+  if (debugMode == 1)
   {
     if (millis() - topTriggerTime < topLastTime)
     {
@@ -190,9 +195,26 @@ void debug()
     Serial.print("\t");
     Serial.print(topLT);
     Serial.print("\t");
+    Serial.print(topST/topLT);
+    Serial.print("\t");
     Serial.print(botST);
     Serial.print("\t");
-    Serial.println(botLT);
+    Serial.print(botLT);
+    Serial.print("\t");
+    Serial.print(botST/botLT);
+    Serial.print("\t");
+    Serial.print(topTriggerTime);
+    Serial.print("\t");
+    Serial.println(botTriggerTime);
+  }
+  if (debugMode == 4)
+  {
+   
+    Serial.print(topST/topLT);
+    
+    Serial.print("\t");
+    Serial.println(botST/botLT);
+    
   }
 }
 
